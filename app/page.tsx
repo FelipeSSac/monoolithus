@@ -65,8 +65,8 @@ export default function HomePage() {
 
           <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_1fr]">
             <div>
-              <h1 className="text-balance font-serif text-6xl font-light leading-[0.92] tracking-tight sm:text-7xl lg:text-8xl">
-                O monolito não se <em className="italic text-primary">quebra</em>.
+              <h1 className="text-balance font-serif text-6xl font-light leading-[0.92] tracking-tight text-primary sm:text-7xl lg:text-8xl">
+                O monolito não se <em className="italic">quebra</em>.
               </h1>
               <p className="mt-9 max-w-md text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
                 Software também não deveria. Sistemas que não quebram, pensados
@@ -117,7 +117,7 @@ export default function HomePage() {
               § 01 — Serviços
             </div>
             <div>
-              <h2 className="max-w-xl text-balance font-serif text-4xl font-light leading-tight tracking-tight sm:text-5xl">
+              <h2 className="max-w-xl text-balance font-serif text-4xl font-light leading-tight tracking-tight text-primary sm:text-5xl">
                 Desenvolvimento web sob medida.
               </h2>
               <p className="mt-6 max-w-xl text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
@@ -131,7 +131,7 @@ export default function HomePage() {
                     <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
                       {item.n}
                     </div>
-                    <h3 className="mt-4 font-serif text-2xl font-light tracking-tight">
+                    <h3 className="mt-4 font-serif text-2xl font-light tracking-tight text-primary">
                       {item.title}
                     </h3>
                     <p className="mt-3 leading-relaxed text-muted-foreground">
@@ -151,7 +151,7 @@ export default function HomePage() {
           <div className="mb-8 font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
             A régua
           </div>
-          <blockquote className="mx-auto max-w-3xl text-balance font-serif text-3xl font-light italic leading-tight tracking-tight sm:text-5xl">
+          <blockquote className="mx-auto max-w-3xl text-balance font-serif text-3xl font-light italic leading-tight tracking-tight text-primary sm:text-5xl">
             {'"Onde o mercado entrega genérico e descartável, entregamos disciplina aplicada à engenharia."'}
           </blockquote>
         </div>
@@ -165,7 +165,7 @@ export default function HomePage() {
               § 02 — Processo
             </div>
             <div>
-              <h2 className="max-w-xl text-balance font-serif text-4xl font-light leading-tight tracking-tight sm:text-5xl">
+              <h2 className="max-w-xl text-balance font-serif text-4xl font-light leading-tight tracking-tight text-primary sm:text-5xl">
                 Processo claro, prazo respeitado.
               </h2>
 
@@ -178,7 +178,7 @@ export default function HomePage() {
                     <div className="font-serif text-2xl font-light text-primary">
                       {item.n}
                     </div>
-                    <div className="font-serif text-2xl font-light tracking-tight">
+                    <div className="font-serif text-2xl font-light tracking-tight text-primary">
                       {item.title}
                     </div>
                     <p className="max-w-xl leading-relaxed text-muted-foreground">
@@ -200,7 +200,7 @@ export default function HomePage() {
               § 03 — Contato
             </div>
             <div>
-              <h2 className="max-w-2xl text-balance font-serif text-4xl font-light leading-tight tracking-tight sm:text-6xl">
+              <h2 className="max-w-2xl text-balance font-serif text-4xl font-light leading-tight tracking-tight text-primary sm:text-6xl">
                 Tem um sistema para construir?
               </h2>
               <p className="mt-6 max-w-lg text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
