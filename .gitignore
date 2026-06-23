@@ -14,3 +14,7 @@ node_modules
 .next/
 .DS_Store
 .vercel
+
+# TypeScript / Next.js generated
+next-env.d.ts
+*.tsbuildinfo
