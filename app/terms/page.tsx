@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { SiteNav } from "@/components/site-nav"
 import { SiteFooter } from "@/components/site-footer"
+import { FieldBand } from "@/components/field-band"
 
 export const metadata: Metadata = {
   title: "Termos de acesso aos dados — Monoolithus",
@@ -98,22 +99,27 @@ export default function TermsPage() {
     <div className="min-h-screen bg-background text-foreground">
       <SiteNav />
 
-      <main className="mx-auto max-w-3xl px-6 py-20 lg:px-16 lg:py-28">
-        <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
-          Documento legal
+      <FieldBand intensity={0.5}>
+        <div className="mx-auto max-w-3xl px-6 py-20 lg:px-16 lg:py-28">
+          <div className="mb-4 font-mono text-[11px] uppercase tracking-[0.18em] text-primary">
+            Documento legal
+          </div>
+          <h1 className="text-balance font-serif text-5xl font-light leading-[0.95] tracking-tight sm:text-6xl">
+            Termos de acesso aos dados
+          </h1>
+          <p className="mt-6 max-w-xl text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
+            Transparência sobre o que coletamos, por que coletamos e o que você
+            pode fazer a respeito.
+          </p>
+          <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
+            Atualizado em {ATUALIZADO_EM}
+          </p>
         </div>
-        <h1 className="text-balance font-serif text-5xl font-light leading-[0.95] tracking-tight sm:text-6xl">
-          Termos de acesso aos dados
-        </h1>
-        <p className="mt-6 max-w-xl text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
-          Transparência sobre o que coletamos, por que coletamos e o que você
-          pode fazer a respeito.
-        </p>
-        <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
-          Atualizado em {ATUALIZADO_EM}
-        </p>
+      </FieldBand>
 
-        <div className="mt-16 border-t border-rule">
+      {/* Faixa sólida: corpo legal */}
+      <main className="mx-auto max-w-3xl px-6 py-20 lg:px-16 lg:py-24">
+        <div className="border-t border-rule">
           {secoes.map((secao) => (
             <section
               key={secao.n}

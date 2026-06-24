@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { Slab } from "@/components/slab"
+import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site"
 
 export function SiteFooter() {
   return (
@@ -24,14 +25,22 @@ export function SiteFooter() {
               Contato
             </h4>
             <a
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block w-fit font-serif text-xl leading-snug transition-[color,transform] duration-200 ease-out hover:translate-x-1 hover:text-primary"
+            >
+              WhatsApp · {WHATSAPP_DISPLAY}
+            </a>
+            <a
               href="https://instagram.com/monoolithus"
-              className="block font-serif text-xl leading-snug transition-colors hover:text-primary"
+              className="block w-fit font-serif text-xl leading-snug transition-[color,transform] duration-200 ease-out hover:translate-x-1 hover:text-primary"
             >
               @monoolithus
             </a>
             <a
               href="mailto:contato@monoolithus.com"
-              className="block font-serif text-xl leading-snug transition-colors hover:text-primary"
+              className="block w-fit font-serif text-xl leading-snug transition-[color,transform] duration-200 ease-out hover:translate-x-1 hover:text-primary"
             >
               contato@monoolithus.com
             </a>
@@ -43,7 +52,7 @@ export function SiteFooter() {
             </h4>
             <Link
               href="/terms"
-              className="block font-serif text-xl leading-snug transition-colors hover:text-primary"
+              className="block w-fit font-serif text-xl leading-snug transition-[color,transform] duration-200 ease-out hover:translate-x-1 hover:text-primary"
             >
               Termos de acesso aos dados
             </Link>
