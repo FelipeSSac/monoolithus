@@ -18,11 +18,34 @@ no vitest/jest/playwright dependency. Do **not** add one as part of this plan.
 Every task therefore verifies with these commands, which are real and produce
 real evidence:
 
-| Command | Checks |
-| --- | --- |
-| `pnpm exec tsc --noEmit` | Types across the whole project |
-| `pnpm lint` | ESLint, including react-hooks rules |
-| `rg` assertions given per task | The specific invariant that task establishes |
+| Command | Checks | Passing bar |
+| --- | --- | --- |
+| `pnpm exec tsc --noEmit` | Types across the whole project | Exits 0, no output |
+| `pnpm lint` | ESLint, including react-hooks rules | **Exactly 2 problems** — see baseline below |
+| `rg` assertions given per task | The specific invariant that task establishes | As stated per task |
+
+### Lint baseline — read before running `pnpm lint`
+
+`pnpm lint` **already fails** at `44ff12e`, the commit this branch started from.
+There are exactly two pre-existing errors, both `react-hooks/set-state-in-effect`:
+
+```
+components/reveal.tsx    — setShown/setState called synchronously in an effect
+components/site-nav.tsx  — setOpen(false) called synchronously in an effect
+```
+
+These are out of scope: the spec forbids unrelated refactoring, and both are
+load-bearing (the reduced-motion short-circuit and the close-menu-on-route-change
+effect). Task 3 rewrites `components/reveal.tsx` and the error survives the
+rewrite by design; only its line number changes.
+
+**The bar for every task is therefore:** `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)`, one in `components/reveal.tsx` and one in
+`components/site-nav.tsx`. **Any third error is a regression introduced by that
+task and must be fixed.**
+
+Never chain these with `&&` — `pnpm lint` exits 1 even when clean by this
+definition. Run them as separate commands.
 
 `pnpm build` runs once, in Task 10. Visual and reduced-motion verification also
 happens in Task 10, via the `the-viewer` skill.
@@ -222,13 +245,16 @@ static, which is a complete experience.
 Run:
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
-rg -n "scroll-behavior: smooth" app/ components/ lib/
-rg -c "ease-editorial|data-reveal|data-parallax|lenis-stopped" app/globals.css
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
+rg -n "scroll-behavior: smooth" app/globals.css
+rg -c "data-reveal" app/globals.css
+rg -c "ease-editorial|data-parallax|lenis-stopped|parallax-drift" app/globals.css
 ```
 
-Expected: tsc and lint pass. The first `rg` prints **nothing** (exit 1). The
-second prints a count of at least 12.
+Expected: `tsc` exits 0. `pnpm lint` reports exactly the 2 baseline errors. The
+`scroll-behavior: smooth` search prints **nothing**. `data-reveal` prints `6`.
+The last search prints `6`.
 
 - [ ] **Step 7: Commit**
 
@@ -302,10 +328,12 @@ export function observeOnce(el: Element, onEnter: OnEnter): () => void {
 Run:
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass with no output about `lib/reveal-observer.ts`.
+Expected: `tsc` exits 0. `pnpm lint` reports exactly the 2 baseline errors from
+the Testing Strategy section, neither of them in `lib/reveal-observer.ts`.
 
 - [ ] **Step 3: Verify the invariant — no scroll listeners introduced**
 
@@ -429,10 +457,13 @@ export function Reveal({
 - [ ] **Step 2: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 3: Verify no existing consumer broke**
 
@@ -445,7 +476,7 @@ rg -n "<Reveal" app/ components/
 pnpm exec tsc --noEmit
 ```
 
-Expected: tsc passes with no errors at any `<Reveal` call site.
+Expected: `tsc` exits 0 with no errors at any `<Reveal` call site.
 
 - [ ] **Step 4: Commit**
 
@@ -581,10 +612,13 @@ revealed content from being gated behind JavaScript.
 - [ ] **Step 4: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 5: Verify the zero-listeners invariant still holds**
 
@@ -676,10 +710,13 @@ with:
 - [ ] **Step 4: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass. `pnpm lint` runs `react-hooks/exhaustive-deps`; `lenis` is
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing. `pnpm lint` runs `react-hooks/exhaustive-deps`; `lenis` is
 in the dependency array, so it must not warn.
 
 - [ ] **Step 5: Verify the old lock is gone from the open path**
@@ -800,10 +837,13 @@ canvas and drawing it would read as noise.
 - [ ] **Step 3: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 4: Verify Parallax stays a server component**
 
@@ -989,10 +1029,13 @@ per-component duration or easing; the global constraint forbids it.
 - [ ] **Step 6: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 7: Verify the stagger-chain constraint**
 
@@ -1119,10 +1162,13 @@ observer from Task 2 handles without extra cost.
 - [ ] **Step 3: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 4: Verify the old borders are gone and the stagger fits budget**
 
@@ -1346,10 +1392,13 @@ border included. It is a structural divider inside an already-revealed block.
 - [ ] **Step 4: Verify types and lint**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
 ```
 
-Expected: both pass.
+Expected: `tsc` exits 0 with no output. `pnpm lint` reports exactly
+`✖ 2 problems (2 errors, 0 warnings)` — the documented baseline. A third error
+is a regression you introduced; fix it before continuing.
 
 - [ ] **Step 5: Verify every route and the footer now have reveals**
 
@@ -1386,11 +1435,15 @@ earlier task looked fine.
 - [ ] **Step 1: Clean build**
 
 ```bash
-pnpm exec tsc --noEmit && pnpm lint && pnpm build
+pnpm exec tsc --noEmit
+pnpm lint 2>&1 | tail -3
+pnpm build
 ```
 
-Expected: all three succeed. Paste the real build output into the task report.
-If the build fails, fix it here — do not report the task complete.
+Expected: `tsc` exits 0. `pnpm lint` reports exactly the 2 baseline errors
+documented in the Testing Strategy section — no more. `pnpm build` succeeds.
+Paste the real build output into the task report. If the build fails, fix it
+here — do not report the task complete.
 
 - [ ] **Step 2: Assert the zero-listeners invariant**
 
