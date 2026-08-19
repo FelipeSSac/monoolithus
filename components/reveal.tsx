@@ -1,55 +1,78 @@
 "use client"
 
-import { useEffect, useRef, useState, type ReactNode } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react"
 
 import { cn } from "@/lib/utils"
+import { observeOnce } from "@/lib/reveal-observer"
+
+type RevealVariant = "rise" | "mask" | "rule" | "quiet"
 
 type RevealProps = {
-  children: ReactNode
+  /** Optional: the `rule` variant renders an empty hairline. */
+  children?: ReactNode
   className?: string
   /** Stagger in ms, applied as transition-delay once revealed. */
   delay?: number
+  variant?: RevealVariant
+  /** Travel distance in px for the `rise` variant. Ignored by other variants. */
+  distance?: number
 }
 
 /**
- * Reveals its children with a quiet fade + rise the first time they scroll into
- * view. Honours `prefers-reduced-motion` two ways: the effect short-circuits to
- * visible, and the `motion-reduce:` utilities guarantee visibility even before
- * hydration.
+ * Reveals its children the first time they scroll into view, using the shared
+ * observer in `lib/reveal-observer`. The hidden and shown states live in CSS
+ * (`[data-reveal]` / `[data-shown]`) so every variant shares one easing token.
+ *
+ * Honours `prefers-reduced-motion` two ways: the effect short-circuits to
+ * visible, and the global reduce block in `globals.css` neutralises durations.
+ * A `<noscript>` override in the root layout guarantees visibility without JS.
  */
-export function Reveal({ children, className, delay = 0 }: RevealProps) {
+export function Reveal({
+  children,
+  className,
+  delay = 0,
+  variant = "rise",
+  distance = 16,
+}: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   const [shown, setShown] = useState(false)
+  // `settled` exists only so `will-change` can be dropped once the transition
+  // finishes. Leaving it on pins a compositor layer for the life of the page.
+  const [settled, setSettled] = useState(false)
 
   useEffect(() => {
     const el = ref.current
     if (!el) return
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setShown(true)
+      setSettled(true)
       return
     }
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((e) => e.isIntersecting)) {
-          setShown(true)
-          io.disconnect()
-        }
-      },
-      { threshold: 0.15, rootMargin: "0px 0px -8% 0px" },
-    )
-    io.observe(el)
-    return () => io.disconnect()
+    return observeOnce(el, () => setShown(true))
   }, [])
+
+  const style: CSSProperties = {
+    ...(delay ? { transitionDelay: `${delay}ms` } : null),
+    ...(variant === "rise"
+      ? ({ "--reveal-distance": `${distance}px` } as CSSProperties)
+      : null),
+    ...(settled ? null : { willChange: "opacity, transform" }),
+  }
 
   return (
     <div
       ref={ref}
-      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
-      className={cn(
-        "transition-[opacity,transform] duration-700 ease-out will-change-[opacity,transform] motion-reduce:!translate-y-0 motion-reduce:!opacity-100",
-        shown ? "translate-y-0 opacity-100" : "translate-y-3 opacity-0",
-        className,
-      )}
+      data-reveal={variant}
+      data-shown={shown ? "true" : undefined}
+      onTransitionEnd={() => setSettled(true)}
+      style={style}
+      className={cn(className)}
     >
       {children}
     </div>
