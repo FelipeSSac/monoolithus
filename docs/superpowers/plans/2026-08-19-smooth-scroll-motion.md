@@ -581,11 +581,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   // App Router's scroll restoration does not know Lenis exists. Skip the first
   // run so deep links and anchors still land where they should.
   useEffect(() => {
+    // Bail before consuming the skip while there is no instance yet. This
+    // effect first runs with `lenis === null`; `setLenis` then changes a
+    // dependency and re-runs it. Consuming the skip on that first null pass
+    // would let the re-run scroll to top on EVERY initial load, which is
+    // precisely the deep-link case the skip exists to protect.
+    if (!lenis) return
     if (firstRoute.current) {
       firstRoute.current = false
       return
     }
-    lenis?.scrollTo(0, { immediate: true })
+    lenis.scrollTo(0, { immediate: true })
   }, [pathname, lenis])
 
   return <LenisContext.Provider value={lenis}>{children}</LenisContext.Provider>
