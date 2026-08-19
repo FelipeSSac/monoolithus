@@ -3,6 +3,7 @@ import Link from "next/link"
 import { SiteNav } from "@/components/site-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { FieldBand } from "@/components/field-band"
+import { Reveal } from "@/components/reveal"
 import { WHATSAPP_URL } from "@/lib/site"
 
 export const metadata: Metadata = {
@@ -31,28 +32,36 @@ export default function ContactPage() {
               </Link>
             </div>
             <div>
-              <h1 className="max-w-2xl text-balance font-serif text-4xl font-light leading-tight tracking-tight text-primary sm:text-6xl">
-                Tem um sistema para construir?
-              </h1>
-              <p className="mt-6 max-w-lg text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
-                Conte o problema. A gente devolve com escopo, prazo e preço — sem
-                buzzword.
-              </p>
+              <Reveal variant="mask">
+                <h1 className="max-w-2xl text-balance font-serif text-4xl font-light leading-tight tracking-tight text-primary sm:text-6xl">
+                  Tem um sistema para construir?
+                </h1>
+              </Reveal>
+              <Reveal delay={120}>
+                <p className="mt-6 max-w-lg text-pretty font-serif text-xl font-light italic leading-relaxed text-muted-foreground">
+                  Conte o problema. A gente devolve com escopo, prazo e preço — sem
+                  buzzword.
+                </p>
+              </Reveal>
               <div className="mt-10 flex flex-wrap items-center gap-4">
-                <a
-                  href={WHATSAPP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-primary px-6 py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-primary-foreground transition-[transform,opacity] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 active:scale-[0.98]"
-                >
-                  Falar no WhatsApp
-                </a>
-                <a
-                  href="https://instagram.com/monoolithus"
-                  className="border border-rule px-6 py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-foreground transition-[transform,color,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-foreground active:translate-y-0 active:scale-[0.98]"
-                >
-                  @monoolithus
-                </a>
+                <Reveal delay={200}>
+                  <a
+                    href={WHATSAPP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block bg-primary px-6 py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-primary-foreground transition-[transform,opacity] duration-200 ease-out hover:-translate-y-0.5 hover:opacity-90 active:translate-y-0 active:scale-[0.98]"
+                  >
+                    Falar no WhatsApp
+                  </a>
+                </Reveal>
+                <Reveal delay={260}>
+                  <a
+                    href="https://instagram.com/monoolithus"
+                    className="inline-block border border-rule px-6 py-3 font-mono text-[11px] uppercase tracking-[0.14em] text-foreground transition-[transform,color,border-color] duration-200 ease-out hover:-translate-y-0.5 hover:border-foreground active:translate-y-0 active:scale-[0.98]"
+                  >
+                    @monoolithus
+                  </a>
+                </Reveal>
               </div>
             </div>
           </div>

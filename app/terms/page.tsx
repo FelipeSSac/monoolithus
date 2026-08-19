@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import { SiteNav } from "@/components/site-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { FieldBand } from "@/components/field-band"
+import { Reveal } from "@/components/reveal"
 
 export const metadata: Metadata = {
   title: "Termos de acesso aos dados — Monoolithus",
@@ -121,43 +122,42 @@ export default function TermsPage() {
       <main className="mx-auto max-w-3xl px-6 py-20 lg:px-16 lg:py-24">
         <div className="border-t border-rule">
           {secoes.map((secao) => (
-            <section
-              key={secao.n}
-              className="grid gap-3 border-b border-rule py-10 md:grid-cols-[64px_1fr] md:gap-8"
-            >
-              <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary md:pt-1">
-                § {secao.n}
-              </div>
-              <div>
-                <h2 className="font-serif text-2xl font-light tracking-tight">
-                  {secao.title}
-                </h2>
-                {secao.paragraphs.map((p, i) => (
-                  <p
-                    key={i}
-                    className="mt-4 leading-relaxed text-muted-foreground"
-                  >
-                    {p}
-                  </p>
-                ))}
-                {secao.list && (
-                  <ul className="mt-4 space-y-3">
-                    {secao.list.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex gap-3 leading-relaxed text-muted-foreground"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="mt-2.5 h-px w-4 shrink-0 bg-primary"
-                        />
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </section>
+            <Reveal key={secao.n} variant="quiet">
+              <section className="grid gap-3 border-b border-rule py-10 md:grid-cols-[64px_1fr] md:gap-8">
+                <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary md:pt-1">
+                  § {secao.n}
+                </div>
+                <div>
+                  <h2 className="font-serif text-2xl font-light tracking-tight">
+                    {secao.title}
+                  </h2>
+                  {secao.paragraphs.map((p, i) => (
+                    <p
+                      key={i}
+                      className="mt-4 leading-relaxed text-muted-foreground"
+                    >
+                      {p}
+                    </p>
+                  ))}
+                  {secao.list && (
+                    <ul className="mt-4 space-y-3">
+                      {secao.list.map((item, i) => (
+                        <li
+                          key={i}
+                          className="flex gap-3 leading-relaxed text-muted-foreground"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="mt-2.5 h-px w-4 shrink-0 bg-primary"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              </section>
+            </Reveal>
           ))}
         </div>
 

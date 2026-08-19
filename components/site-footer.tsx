@@ -1,13 +1,15 @@
 import Link from "next/link"
+import { Reveal } from "@/components/reveal"
 import { Slab } from "@/components/slab"
 import { WHATSAPP_DISPLAY, WHATSAPP_URL } from "@/lib/site"
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-rule">
+    <footer className="relative">
+      <Reveal variant="rule" className="absolute inset-x-0 top-0 h-px bg-rule" />
       <div className="mx-auto max-w-6xl px-6 py-20 lg:px-16">
         <div className="grid gap-12 md:grid-cols-3">
-          <div>
+          <Reveal>
             <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
               Marca
             </h4>
@@ -18,9 +20,9 @@ export function SiteFooter() {
             <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.12em] text-muted-foreground">
               São José dos Campos · BR
             </p>
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={80}>
             <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
               Contato
             </h4>
@@ -44,9 +46,9 @@ export function SiteFooter() {
             >
               contato@monoolithus.com
             </a>
-          </div>
+          </Reveal>
 
-          <div>
+          <Reveal delay={160}>
             <h4 className="mb-4 font-mono text-[10px] uppercase tracking-[0.2em] text-primary">
               Legal
             </h4>
@@ -56,7 +58,7 @@ export function SiteFooter() {
             >
               Termos de acesso aos dados
             </Link>
-          </div>
+          </Reveal>
         </div>
 
         <div className="mt-16 flex flex-col gap-4 border-t border-rule pt-6 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
