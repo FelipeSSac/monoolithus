@@ -84,6 +84,12 @@
   --bone-dim: rgba(232, 229, 221, 0.55);
   --rule: rgba(232, 229, 221, 0.18);
 
+  /* Motion — one easing curve and three durations for the whole site. */
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-reveal: 900ms;
+  --dur-rule: 700ms;
+  --dur-quiet: 500ms;
+
   --sidebar: #0f0f0f;
   --sidebar-foreground: #e8e5dd;
   --sidebar-primary: #ffb23f;
@@ -106,12 +112,6 @@
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
 /* Respect users who ask for less motion: neutralise transitions/animations. */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -121,5 +121,74 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Lenis base rules. Inlined rather than importing `lenis/dist/lenis.css`. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
+}
+
+/* Reveal variants. The `data-reveal` attribute selects the hidden state; the
+   component flips `data-shown` once the element has entered the viewport. */
+[data-reveal] {
+  transition-property: opacity, transform, clip-path;
+  transition-timing-function: var(--ease-editorial);
+}
+[data-reveal='rise'] {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-distance, 16px), 0);
+  transition-duration: var(--dur-reveal);
+}
+[data-reveal='mask'] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  clip-path: inset(100% -0.1em -0.25em -0.1em);
+  transition-duration: var(--dur-reveal);
+}
+[data-reveal='rule'] {
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition-duration: var(--dur-rule);
+}
+[data-reveal='quiet'] {
+  opacity: 0;
+  transition-duration: var(--dur-quiet);
+}
+[data-reveal][data-shown='true'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(-0.2em -0.1em -0.25em -0.1em);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    @keyframes parallax-drift {
+      from {
+        transform: translate3d(0, calc(var(--parallax, 24px) * -1), 0);
+      }
+      to {
+        transform: translate3d(0, var(--parallax, 24px), 0);
+      }
+    }
+    [data-parallax] {
+      animation: parallax-drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+      will-change: transform;
+    }
   }
 }
