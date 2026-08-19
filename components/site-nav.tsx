@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation"
 import { Menu, X } from "lucide-react"
 
 import { Slab } from "@/components/slab"
+import { useLenis } from "@/components/smooth-scroll"
 import { WHATSAPP_URL } from "@/lib/site"
 
 const links = [
@@ -17,6 +18,7 @@ const links = [
 export function SiteNav() {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const lenis = useLenis()
 
   // Close the menu whenever the route changes.
   useEffect(() => {
@@ -30,12 +32,17 @@ export function SiteNav() {
       if (e.key === "Escape") setOpen(false)
     }
     document.addEventListener("keydown", onKey)
-    document.body.style.overflow = "hidden"
+    // Lenis ignores `overflow: hidden` on body, so it has to be stopped
+    // directly. Under reduced motion there is no instance and the plain
+    // overflow lock is still correct.
+    if (lenis) lenis.stop()
+    else document.body.style.overflow = "hidden"
     return () => {
       document.removeEventListener("keydown", onKey)
-      document.body.style.overflow = ""
+      if (lenis) lenis.start()
+      else document.body.style.overflow = ""
     }
-  }, [open])
+  }, [open, lenis])
 
   return (
     <header className="sticky top-0 z-50 border-b border-rule bg-background/85 backdrop-blur-md backdrop-saturate-150">
