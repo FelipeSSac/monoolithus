@@ -63,23 +63,39 @@ export default function HomePage() {
             <Reveal delay={160} className="flex items-center justify-center">
               <Parallax distance={-12} className="w-full">
                 <div className="group relative grid aspect-square w-full place-items-center border border-rule transition-colors duration-500 hover:border-primary/40">
-                  <Reveal variant="quiet" delay={280}>
-                    <span className="absolute left-3.5 top-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={280}
+                    className="absolute left-3.5 top-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       FIG. 01
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={340}>
-                    <span className="absolute right-3.5 top-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={340}
+                    className="absolute right-3.5 top-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       SLAB · 4:9
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={400}>
-                    <span className="absolute bottom-3.5 left-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={400}
+                    className="absolute bottom-3.5 left-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       #FFB23F
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={460}>
-                    <span className="absolute bottom-3.5 right-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={460}
+                    className="absolute bottom-3.5 right-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       v1.1 · ÂMBAR
                     </span>
                   </Reveal>
