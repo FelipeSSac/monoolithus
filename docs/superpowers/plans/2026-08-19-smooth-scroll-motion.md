@@ -205,13 +205,37 @@ overhang or a descender — the Fraunces italic headlines need this.
 [data-reveal][data-shown='true'] {
   opacity: 1;
   transform: none;
-  clip-path: inset(-0.2em -0.1em -0.25em -0.1em);
 }
 ```
 
 Content must never be gated behind JavaScript. That is handled by a `<noscript>`
 override added to the root layout in Task 4, not here — a `<noscript>` block
 cannot live in a stylesheet.
+
+The same override must ALSO be declared inside the existing
+`@media (prefers-reduced-motion: reduce)` block. That block only zeroes
+durations; it does not neutralise `opacity: 0`, `translate3d(...)` or
+`inset(100% ...)`. Without this, a reduced-motion user sees an empty page until
+hydration — and permanently, if the bundle fails to load. `<noscript>` does not
+cover the JS-enabled-but-broken case. The old `Reveal` guaranteed this with
+`motion-reduce:` utilities, and the spec requires the guarantee be preserved:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal],
+  [data-reveal-mask] {
+    opacity: 1 !important;
+    transform: none !important;
+    clip-path: none !important;
+  }
+}
+```
+
+Note `clip-path` does NOT belong on the generic `[data-shown='true']` rule. Only
+the `mask` variant ever sets one, and it carries its own shown-state rule. A
+generic `clip-path: inset(-0.2em ...)` clips every revealed block by a few px —
+the `em` resolves against the wrapper's inherited 16px, not against a large
+headline's font-size — cutting descenders and borders.
 
 - [ ] **Step 5: Add the parallax block**
 
