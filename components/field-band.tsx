@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { cn } from "@/lib/utils"
 import { ShaderCanvas } from "@/components/ui/shader-canvas"
 import { MONOLITH_FRAG } from "@/lib/shaders"
+import { Parallax } from "@/components/parallax"
 
 type FieldBandProps = {
   children: ReactNode
@@ -20,13 +21,17 @@ type FieldBandProps = {
 export function FieldBand({ children, className, intensity }: FieldBandProps) {
   return (
     <div className={cn("relative overflow-hidden border-b border-rule", className)}>
-      <div className="pointer-events-none absolute inset-0">
+      {/* Inset vertically so the drifting canvas never exposes a bare edge. */}
+      <Parallax
+        distance={24}
+        className="pointer-events-none absolute -inset-y-8 inset-x-0"
+      >
         <ShaderCanvas
           fragmentSource={MONOLITH_FRAG}
           intensity={intensity}
           ariaLabel="Campo de filamentos âmbar em movimento sobre fundo escuro"
         />
-      </div>
+      </Parallax>
       {/* Scrims: legibility on the left, blend into the page top and bottom.
           Tighter on small screens where the single column sits over the field. */}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background via-background/90 to-background/40 lg:via-background/80 lg:to-transparent" />
