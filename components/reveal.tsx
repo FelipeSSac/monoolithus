@@ -6,6 +6,7 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
+  type TransitionEvent,
 } from "react"
 
 import { cn } from "@/lib/utils"
@@ -65,16 +66,40 @@ export function Reveal({
     ...(settled ? null : { willChange: "opacity, transform" }),
   }
 
+  const onTransitionEnd = (e: TransitionEvent<HTMLDivElement>) => {
+    // Guard against bubbling: children here have their own hover transitions,
+    // and a bubbled `transitionend` would clear `will-change` mid-reveal.
+    if (e.target === e.currentTarget) setSettled(true)
+  }
+
+  if (variant === "mask") {
+    // Chromium factors `clip-path` into IntersectionObserver's
+    // intersection ratio: a node at rest with `clip-path: inset(100% ...)`
+    // (this variant's hidden state) permanently measures ratio 0, so if the
+    // observed node is also the clipped node, `threshold: 0.15` can never be
+    // crossed and the reveal never fires. Observe a plain, unclipped
+    // wrapper instead, and put the clip-path on an inner node driven by the
+    // wrapper's `data-shown` state.
+    return (
+      <div ref={ref} data-reveal="mask" data-shown={shown ? "true" : undefined}>
+        <div
+          data-reveal-mask
+          onTransitionEnd={onTransitionEnd}
+          style={style}
+          className={cn(className)}
+        >
+          {children}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div
       ref={ref}
       data-reveal={variant}
       data-shown={shown ? "true" : undefined}
-      // Guard against bubbling: children here have their own hover transitions,
-      // and a bubbled `transitionend` would clear `will-change` mid-reveal.
-      onTransitionEnd={(e) => {
-        if (e.target === e.currentTarget) setSettled(true)
-      }}
+      onTransitionEnd={onTransitionEnd}
       style={style}
       className={cn(className)}
     >

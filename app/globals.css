@@ -153,12 +153,6 @@ html.lenis body {
   transform: translate3d(0, var(--reveal-distance, 16px), 0);
   transition-duration: var(--dur-reveal);
 }
-[data-reveal='mask'] {
-  opacity: 0;
-  transform: translate3d(0, 24px, 0);
-  clip-path: inset(100% -0.1em -0.25em -0.1em);
-  transition-duration: var(--dur-reveal);
-}
 [data-reveal='rule'] {
   transform: scaleX(0);
   transform-origin: left center;
@@ -169,6 +163,23 @@ html.lenis body {
   transition-duration: var(--dur-quiet);
 }
 [data-reveal][data-shown='true'] {
+  opacity: 1;
+  transform: none;
+  clip-path: inset(-0.2em -0.1em -0.25em -0.1em);
+}
+
+/* `mask` variant: the wrapper carrying `data-reveal`/`data-shown` is the
+   IntersectionObserver target and stays unclipped (see reveal.tsx for why).
+   The clip-path mask effect lives on the inner node instead. */
+[data-reveal-mask] {
+  opacity: 0;
+  transform: translate3d(0, 24px, 0);
+  clip-path: inset(100% -0.1em -0.25em -0.1em);
+  transition-property: opacity, transform, clip-path;
+  transition-timing-function: var(--ease-editorial);
+  transition-duration: var(--dur-reveal);
+}
+[data-reveal='mask'][data-shown='true'] [data-reveal-mask] {
   opacity: 1;
   transform: none;
   clip-path: inset(-0.2em -0.1em -0.25em -0.1em);

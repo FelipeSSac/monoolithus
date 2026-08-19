@@ -44,7 +44,7 @@ export default function RootLayout({
     >
       <body className="font-sans antialiased">
         <noscript>
-          <style>{`[data-reveal]{opacity:1!important;transform:none!important;clip-path:none!important}`}</style>
+          <style>{`[data-reveal],[data-reveal-mask]{opacity:1!important;transform:none!important;clip-path:none!important}`}</style>
         </noscript>
         <SmoothScroll>{children}</SmoothScroll>
         {process.env.NODE_ENV === 'production' && <Analytics />}
