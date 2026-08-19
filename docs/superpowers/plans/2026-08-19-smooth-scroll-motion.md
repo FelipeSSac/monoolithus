@@ -969,23 +969,39 @@ block with:
             <Reveal delay={160} className="flex items-center justify-center">
               <Parallax distance={-12} className="w-full">
                 <div className="group relative grid aspect-square w-full place-items-center border border-rule transition-colors duration-500 hover:border-primary/40">
-                  <Reveal variant="quiet" delay={280}>
-                    <span className="absolute left-3.5 top-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={280}
+                    className="absolute left-3.5 top-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       FIG. 01
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={340}>
-                    <span className="absolute right-3.5 top-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={340}
+                    className="absolute right-3.5 top-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       SLAB · 4:9
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={400}>
-                    <span className="absolute bottom-3.5 left-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={400}
+                    className="absolute bottom-3.5 left-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       #FFB23F
                     </span>
                   </Reveal>
-                  <Reveal variant="quiet" delay={460}>
-                    <span className="absolute bottom-3.5 right-3.5 font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
+                  <Reveal
+                    variant="quiet"
+                    delay={460}
+                    className="absolute bottom-3.5 right-3.5"
+                  >
+                    <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-muted-foreground">
                       v1.1 · ÂMBAR
                     </span>
                   </Reveal>
@@ -995,12 +1011,23 @@ block with:
             </Reveal>
 ```
 
-Note the corner labels keep their `absolute` positioning classes, but they are
-now inside a `Reveal` wrapper div. The wrapper is a static block inside a
-`relative` parent, so the absolutely-positioned `<span>` still resolves against
-the bordered square. Verify this visually in Task 10 — if any label drifts,
-move the `absolute left-3.5 top-3.5` classes onto the `Reveal` via its
-`className` prop and drop them from the `<span>`.
+The positioning classes sit on the **`Reveal`**, not on the `<span>`. This is
+mandatory, not stylistic. `Reveal` applies an inline
+`will-change: opacity, transform` on every instance until its first
+`transitionend`, and per the CSS Will Change spec, naming `transform` in
+`will-change` makes the element a containing block for absolutely-positioned
+descendants exactly as a real `transform` would — regardless of whether the
+variant ever transforms. If the `absolute` classes stayed on the `<span>`, each
+label would resolve against its content-sized `Reveal` div (a grid item under
+`place-items-center`) for the whole pre-settled window, then snap to the
+square's corner the instant `will-change` was dropped.
+
+Putting `absolute` on the `Reveal` itself sidesteps this: an element's own
+containing block is unaffected by its own `will-change`.
+
+This applies only here. The `rule` reveals on `/`, `/services`, `/process` and
+the footer are each themselves the absolutely-positioned element, and each has a
+nearer `relative` ancestor, so none of them are affected.
 
 - [ ] **Step 5: Mask the manifesto and draw its section rule**
 
@@ -1056,7 +1083,9 @@ That is 4 steps of 60ms after a 280ms lead-in. Confirm no delay exceeds 460:
 rg -n "delay=\{[0-9]+\}" app/page.tsx
 ```
 
-Expected: values are 60, 120, 160, 200, 200, 280, 340, 400, 460 — none higher.
+Expected: values are 60, 120, 120, 160, 200, 200, 280, 340, 400, 460 — none higher.
+(Two `120`s: the second microlabel and the hero lead paragraph. Two `200`s: the
+hero CTA row and the manifesto blockquote.)
 
 - [ ] **Step 8: Commit**
 
