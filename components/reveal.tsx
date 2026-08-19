@@ -70,7 +70,11 @@ export function Reveal({
       ref={ref}
       data-reveal={variant}
       data-shown={shown ? "true" : undefined}
-      onTransitionEnd={() => setSettled(true)}
+      // Guard against bubbling: children here have their own hover transitions,
+      // and a bubbled `transitionend` would clear `will-change` mid-reveal.
+      onTransitionEnd={(e) => {
+        if (e.target === e.currentTarget) setSettled(true)
+      }}
       style={style}
       className={cn(className)}
     >
