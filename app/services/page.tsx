@@ -67,15 +67,12 @@ export default function ServicesPage() {
       </FieldBand>
 
       {/* Faixa sólida: catálogo de serviços */}
-      <section className="border-b border-rule bg-background">
+      <section className="relative bg-background">
         <div className="mx-auto max-w-6xl px-6 py-20 lg:px-16">
-          <Reveal>
-            <div className="grid gap-px border border-rule bg-rule sm:grid-cols-2">
-              {servicos.map((item) => (
-                <div
-                  key={item.n}
-                  className="group bg-background p-8 transition-colors duration-300 hover:bg-secondary hover:shadow-[inset_2px_0_0_0_var(--primary)]"
-                >
+          <div className="grid gap-px border border-rule bg-rule sm:grid-cols-2">
+            {servicos.map((item, i) => (
+              <Reveal key={item.n} delay={i * 90} className="bg-background">
+                <div className="group h-full bg-background p-8 transition-colors duration-300 hover:bg-secondary hover:shadow-[inset_2px_0_0_0_var(--primary)]">
                   <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-primary transition-transform duration-300 ease-out group-hover:translate-x-0.5">
                     {item.n}
                   </div>
@@ -86,10 +83,14 @@ export default function ServicesPage() {
                     {item.desc}
                   </p>
                 </div>
-              ))}
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
         </div>
+        <Reveal
+          variant="rule"
+          className="absolute inset-x-0 bottom-0 h-px bg-rule"
+        />
       </section>
 
       <SiteFooter />

@@ -63,15 +63,12 @@ export default function ProcessPage() {
       </FieldBand>
 
       {/* Faixa sólida: etapas do processo */}
-      <section className="border-b border-rule bg-background">
+      <section className="relative bg-background">
         <div className="mx-auto max-w-6xl px-6 py-20 lg:px-16">
-          <Reveal>
-            <div className="border-t border-rule">
-              {processo.map((item) => (
-                <div
-                  key={item.n}
-                  className="group grid gap-4 border-b border-rule py-7 transition-colors duration-300 hover:bg-secondary/50 md:grid-cols-[80px_220px_1fr] md:gap-10 md:items-baseline"
-                >
+          <div className="border-t border-rule">
+            {processo.map((item, i) => (
+              <Reveal key={item.n} delay={i * 90}>
+                <div className="group relative grid gap-4 py-7 transition-colors duration-300 hover:bg-secondary/50 md:grid-cols-[80px_220px_1fr] md:gap-10 md:items-baseline">
                   <div className="font-serif text-2xl font-light text-primary transition-transform duration-300 ease-out group-hover:translate-x-1">
                     {item.n}
                   </div>
@@ -81,11 +78,20 @@ export default function ProcessPage() {
                   <p className="max-w-xl leading-relaxed text-muted-foreground">
                     {item.desc}
                   </p>
+                  <Reveal
+                    variant="rule"
+                    delay={i * 90 + 120}
+                    className="absolute inset-x-0 bottom-0 h-px bg-rule"
+                  />
                 </div>
-              ))}
-            </div>
-          </Reveal>
+              </Reveal>
+            ))}
+          </div>
         </div>
+        <Reveal
+          variant="rule"
+          className="absolute inset-x-0 bottom-0 h-px bg-rule"
+        />
       </section>
 
       <SiteFooter />
