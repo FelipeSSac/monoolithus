@@ -25,6 +25,13 @@ export type ShaderCanvasProps = {
    * the frame budget the backing store steps down towards this before giving up.
    */
   qualityFloor?: number
+  /**
+   * When false the shader is drawn exactly once and no animation loop ever
+   * starts, so the field costs nothing per frame. This is the only setting that
+   * fully frees the frame budget for scrolling — throttling and downscaling a
+   * live shader still leaves redraw frames that blow the budget on weaker GPUs.
+   */
+  animated?: boolean
   /** Multiplier applied to elapsed time before it reaches the shader. */
   timeScale?: number
   /** Optional `uniform float intensity` fed to the shader (1 = baseline). */
@@ -95,6 +102,7 @@ export function ShaderCanvas({
   dprMax = 1,
   maxFps = 30,
   qualityFloor = 0.4,
+  animated = true,
   timeScale = 1,
   intensity = 1,
   clearColor = [0, 0, 0, 1],
@@ -159,22 +167,33 @@ export function ShaderCanvas({
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
     }
 
-    fit()
-
-    const ro = new ResizeObserver(fit)
-    ro.observe(canvas)
-    window.addEventListener("resize", fit)
-
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches
+    const isStatic = !animated || reduceMotion
 
-    // Reduced motion: render a single representative frame and stop.
-    if (reduceMotion) {
+    // Resizing a canvas clears its drawing buffer. The animated path redraws on
+    // the next frame anyway, but a static one never would — so it must redraw
+    // here or the band goes black on resize and on mobile orientation change.
+    const onResize = () => {
+      fit()
+      if (isStatic) draw(8)
+    }
+
+    fit()
+
+    const ro = new ResizeObserver(onResize)
+    ro.observe(canvas)
+    window.addEventListener("resize", onResize)
+
+    // Static: render a single representative frame and stop. No rAF loop, no
+    // observers, no per-frame GPU work — the canvas becomes an image. Taken
+    // both when the caller asks for it and under reduced motion.
+    if (isStatic) {
       draw(8)
       return () => {
         ro.disconnect()
-        window.removeEventListener("resize", fit)
+        window.removeEventListener("resize", onResize)
         gl.deleteBuffer(buffer)
         gl.deleteProgram(program)
       }
@@ -253,7 +272,7 @@ export function ShaderCanvas({
       stop()
       io.disconnect()
       ro.disconnect()
-      window.removeEventListener("resize", fit)
+      window.removeEventListener("resize", onResize)
       document.removeEventListener("visibilitychange", onVisibility)
       gl.deleteBuffer(buffer)
       gl.deleteProgram(program)
@@ -263,6 +282,7 @@ export function ShaderCanvas({
     dprMax,
     maxFps,
     qualityFloor,
+    animated,
     timeScale,
     intensity,
     clearColor,

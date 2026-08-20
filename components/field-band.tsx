@@ -26,10 +26,15 @@ export function FieldBand({ children, className, intensity }: FieldBandProps) {
         distance={24}
         className="pointer-events-none absolute -inset-y-8 inset-x-0"
       >
+        {/* Static by design: the shader is fill-rate bound, and any live
+            redraw leaves frames that miss the budget on weaker GPUs. Drawn
+            once, it costs nothing per frame and the scroll stays at 60fps.
+            Pass `animated` to bring the drift back. */}
         <ShaderCanvas
           fragmentSource={MONOLITH_FRAG}
           intensity={intensity}
-          ariaLabel="Campo de filamentos âmbar em movimento sobre fundo escuro"
+          animated={false}
+          ariaLabel="Campo de filamentos âmbar sobre fundo escuro"
         />
       </Parallax>
       {/* Scrims: legibility on the left, blend into the page top and bottom.
