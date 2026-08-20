@@ -1,8 +1,7 @@
 import type { ReactNode } from "react"
 
 import { cn } from "@/lib/utils"
-import { ShaderCanvas } from "@/components/ui/shader-canvas"
-import { MONOLITH_FRAG } from "@/lib/shaders"
+import { FieldVideo } from "@/components/field-video"
 import { Parallax } from "@/components/parallax"
 
 type FieldBandProps = {
@@ -26,14 +25,9 @@ export function FieldBand({ children, className, intensity }: FieldBandProps) {
         distance={24}
         className="pointer-events-none absolute -inset-y-8 inset-x-0"
       >
-        {/* Animated, but frozen while the page scrolls — the shader is
-            fill-rate bound and only ever hurt by competing with the scroll.
-            See ShaderCanvas for how the freeze is detected. */}
-        <ShaderCanvas
-          fragmentSource={MONOLITH_FRAG}
-          intensity={intensity}
-          ariaLabel="Campo de filamentos âmbar em movimento sobre fundo escuro"
-        />
+        {/* Pre-rendered from the shader by scripts/render-field.mjs. Playback
+            is a hardware decode, so the field keeps moving during scroll. */}
+        <FieldVideo intensity={intensity} />
       </Parallax>
       {/* Scrims: legibility on the left, blend into the page top and bottom.
           Tighter on small screens where the single column sits over the field. */}
