@@ -207,21 +207,33 @@ html.lenis body {
    measured 59.7 / 16.7, i.e. free, because it resolves to a layer offset.
    The field is radial, so drifting it reads as the light source moving.
 
-   The static scale gives the drift room to move without exposing a bare edge.
-   1.09 leaves ~4.5% of margin per side against 1.5% of travel, which measured
-   as full coverage at every phase down to a 390px viewport; FieldBand's
-   `overflow-hidden` clips the rest. */
+   Speed is the whole point and it has a floor. An earlier pass used 1.5% over
+   75s, which works out to 0.77px/s on a 1920 canvas — comfortably below the
+   ~2-4px/s where slow motion stops registering, so it read as a still image.
+   2.5% over 22s gives ~4.4px/s: visible as drift, still calm enough to sit
+   behind text.
+
+   Linear, not ease-in-out. Easing stalls the drift at both ends of the travel,
+   and at this speed those stalls last seconds and read as the image being
+   static again — the exact complaint this is fixing. Linear holds 4.4px/s the
+   whole way; the direction reversal is invisible on a diffuse field with no
+   hard edge to track.
+
+   The static scale gives the drift room without exposing a bare edge. 1.13
+   leaves ~6.5% of margin per side against 2.5% of travel; FieldBand's
+   `overflow-hidden` clips the rest. Scale is static on purpose — animating it
+   would resample the layer every frame, the same cost that ruled out rotation. */
 @media (prefers-reduced-motion: no-preference) {
   @keyframes field-breathe {
     from {
-      transform: translate3d(-1.5%, -1%, 0) scale(1.09);
+      transform: translate3d(-2.5%, -1.6%, 0) scale(1.13);
     }
     to {
-      transform: translate3d(1.5%, 1%, 0) scale(1.09);
+      transform: translate3d(2.5%, 1.6%, 0) scale(1.13);
     }
   }
   .field-breathe {
-    animation: field-breathe 75s ease-in-out infinite alternate;
+    animation: field-breathe 22s linear infinite alternate;
     will-change: transform;
   }
 }
