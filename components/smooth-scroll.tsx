@@ -37,12 +37,18 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 
     const instance = new Lenis({
-      duration: 1.1,
-      // Expo-out: fast start, long settle. Reads as weight, not lag.
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      wheelMultiplier: 1,
+      // Lerp, not duration+easing. In duration mode every wheel event restarts
+      // the animation toward a new target, so the longer the animation the more
+      // often it is interrupted — weight turns into grabbiness. Lerp approaches
+      // the target by a constant fraction each frame and never restarts, so a
+      // lower number reads as heavier inertia while staying perfectly even.
+      // ~94% of the distance in half a second, fully settled around 1.2s.
+      lerp: 0.055,
+      // Each wheel notch travels a little further, reinforcing the momentum.
+      wheelMultiplier: 1.1,
       // Touch keeps native momentum. Hijacking it is what makes smooth-scroll
-      // sites feel broken on phones.
+      // sites feel broken on phones, and long inertia layered over the platform's
+      // own momentum is exactly what makes a page feel like it ignores the finger.
       syncTouch: false,
     })
     setLenis(instance)
