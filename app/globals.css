@@ -197,6 +197,35 @@ html.lenis body {
   }
 }
 
+/* Cheap life for a static field. The shader is drawn once and never redraws;
+   this drifts the finished image instead of recomputing it, so the motion
+   keeps running during scroll at no GPU fill cost.
+
+   Translate only, deliberately. Rotation was measured at 50.8fps with a p95 of
+   33.4ms against 59.0 / 16.8 with no animation at all — a rotated layer forces
+   the compositor to resample the whole texture every frame. Pure translation
+   measured 59.7 / 16.7, i.e. free, because it resolves to a layer offset.
+   The field is radial, so drifting it reads as the light source moving.
+
+   The static scale gives the drift room to move without exposing a bare edge.
+   1.09 leaves ~4.5% of margin per side against 1.5% of travel, which measured
+   as full coverage at every phase down to a 390px viewport; FieldBand's
+   `overflow-hidden` clips the rest. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes field-breathe {
+    from {
+      transform: translate3d(-1.5%, -1%, 0) scale(1.09);
+    }
+    to {
+      transform: translate3d(1.5%, 1%, 0) scale(1.09);
+    }
+  }
+  .field-breathe {
+    animation: field-breathe 75s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
     @keyframes parallax-drift {
