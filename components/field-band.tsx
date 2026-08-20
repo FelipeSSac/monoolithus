@@ -26,15 +26,13 @@ export function FieldBand({ children, className, intensity }: FieldBandProps) {
         distance={24}
         className="pointer-events-none absolute -inset-y-8 inset-x-0"
       >
-        {/* Drawn once, then kept alive by a slow compositor-only drift
-            (`.field-breathe` in globals.css) rather than by redrawing. The
-            motion continues during scroll and costs no GPU fill. */}
+        {/* Animated, but frozen while the page scrolls — the shader is
+            fill-rate bound and only ever hurt by competing with the scroll.
+            See ShaderCanvas for how the freeze is detected. */}
         <ShaderCanvas
           fragmentSource={MONOLITH_FRAG}
           intensity={intensity}
-          animated={false}
-          className="field-breathe"
-          ariaLabel="Campo de filamentos âmbar sobre fundo escuro"
+          ariaLabel="Campo de filamentos âmbar em movimento sobre fundo escuro"
         />
       </Parallax>
       {/* Scrims: legibility on the left, blend into the page top and bottom.
