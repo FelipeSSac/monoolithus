@@ -210,11 +210,32 @@ export function ShaderCanvas({
     let costEma = 16.7
     let samples = 0
 
+    // Freeze while the page is scrolling. The shader's cost only ever hurts by
+    // competing with the scroll, so the cheapest possible fix is to not compete:
+    // sample the scroll position from the loop we already run — no extra
+    // listener, no coupling to Lenis — and skip the draw while it is changing.
+    // `elapsed` is frozen too, so the field resumes where it left off instead of
+    // jumping forward by however long the scroll lasted.
+    const scrollIdleMs = 140
+    let lastScrollY = window.scrollY
+    let lastScrollAt = 0
+
     const frame = (now: number) => {
       if (last === null) last = now
       const delta = now - last
-      elapsed += delta * 1e-3
       last = now
+
+      const y = window.scrollY
+      if (y !== lastScrollY) {
+        lastScrollY = y
+        lastScrollAt = now
+      }
+      if (now - lastScrollAt < scrollIdleMs) {
+        raf = requestAnimationFrame(frame)
+        return
+      }
+
+      elapsed += delta * 1e-3
 
       // rAF-to-rAF spacing is the honest signal for "are we holding the frame
       // budget". If the GPU is saturated the browser cannot call us on time, so
