@@ -8,8 +8,23 @@ export type ShaderCanvasProps = {
   /** GLSL ES 3.00 fragment shader. Receives `uniform float time` and `uniform vec2 resolution`. */
   fragmentSource: string
   className?: string
-  /** Cap device pixel ratio to protect fill-rate on retina screens. */
+  /**
+   * Cap device pixel ratio to protect fill-rate on retina screens. This shader
+   * is fill-rate bound, so cost scales with the square of this value — 1 is a
+   * deliberate default, not a conservative guess. See `maxFps`.
+   */
   dprMax?: number
+  /**
+   * Frames per second the shader redraws at. The field drifts slowly, so 30 is
+   * visually indistinguishable from 60 while leaving every other frame free for
+   * scroll compositing.
+   */
+  maxFps?: number
+  /**
+   * Lower bound for the adaptive resolution scale. On a GPU that cannot hold
+   * the frame budget the backing store steps down towards this before giving up.
+   */
+  qualityFloor?: number
   /** Multiplier applied to elapsed time before it reaches the shader. */
   timeScale?: number
   /** Optional `uniform float intensity` fed to the shader (1 = baseline). */
@@ -66,11 +81,20 @@ function createProgram(
  * Lean WebGL2 fragment-shader background. Renders a full-bleed quad and feeds
  * `time`/`resolution` uniforms to the supplied shader. Pauses when offscreen or
  * the tab is hidden, and honours `prefers-reduced-motion` by drawing one frame.
+ *
+ * The brand shader is fill-rate bound — its per-pixel cost is roughly constant,
+ * so frame time tracks the backing store's pixel count almost exactly. Three
+ * things keep that from eating the scroll: the backing store is capped at 1
+ * device pixel per CSS pixel, redraws are throttled to `maxFps`, and if frames
+ * still run long the resolution steps down until they don't. The element's CSS
+ * size never changes — only how many pixels the shader fills it with.
  */
 export function ShaderCanvas({
   fragmentSource,
   className,
-  dprMax = 2,
+  dprMax = 1,
+  maxFps = 30,
+  qualityFloor = 0.4,
   timeScale = 1,
   intensity = 1,
   clearColor = [0, 0, 0, 1],
@@ -109,11 +133,16 @@ export function ShaderCanvas({
     if (uniIntensity) gl.uniform1f(uniIntensity, intensity)
     gl.clearColor(clearColor[0], clearColor[1], clearColor[2], clearColor[3])
 
+    // Adaptive resolution scale. Only ever decreases, so it converges instead of
+    // oscillating between two settings that each look wrong half the time.
+    let quality = 1
+
     const fit = () => {
       const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, dprMax))
       const rect = canvas.getBoundingClientRect()
-      const width = Math.floor(Math.max(1, rect.width) * dpr)
-      const height = Math.floor(Math.max(1, rect.height) * dpr)
+      const scale = dpr * quality
+      const width = Math.floor(Math.max(1, rect.width) * scale)
+      const height = Math.floor(Math.max(1, rect.height) * scale)
       if (canvas.width !== width || canvas.height !== height) {
         canvas.width = width
         canvas.height = height
@@ -156,11 +185,37 @@ export function ShaderCanvas({
     let elapsed = 0
     let last: number | null = null
 
+    // Frame pacing + adaptive quality state.
+    const minFrameMs = 1000 / Math.max(1, maxFps)
+    let lastDraw = 0
+    let costEma = 16.7
+    let samples = 0
+
     const frame = (now: number) => {
       if (last === null) last = now
-      elapsed += (now - last) * 1e-3
+      const delta = now - last
+      elapsed += delta * 1e-3
       last = now
-      draw(elapsed)
+
+      // rAF-to-rAF spacing is the honest signal for "are we holding the frame
+      // budget". If the GPU is saturated the browser cannot call us on time, so
+      // this grows regardless of how long our own draw call appears to take.
+      if (delta > 0 && delta < 1000) costEma += (delta - costEma) * 0.1
+
+      if (quality > qualityFloor && ++samples > 45 && costEma > 24) {
+        quality = Math.max(qualityFloor, quality - 0.25)
+        samples = 0
+        costEma = 16.7
+        fit()
+      }
+
+      // Throttle the redraw, not the loop: rAF keeps running so `costEma` stays
+      // an accurate read on the page's real frame pacing.
+      if (now - lastDraw >= minFrameMs) {
+        lastDraw = now
+        draw(elapsed)
+      }
+
       raf = requestAnimationFrame(frame)
     }
 
@@ -203,7 +258,15 @@ export function ShaderCanvas({
       gl.deleteBuffer(buffer)
       gl.deleteProgram(program)
     }
-  }, [fragmentSource, dprMax, timeScale, intensity, clearColor])
+  }, [
+    fragmentSource,
+    dprMax,
+    maxFps,
+    qualityFloor,
+    timeScale,
+    intensity,
+    clearColor,
+  ])
 
   return (
     <canvas
